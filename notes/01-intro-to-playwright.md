@@ -105,3 +105,4 @@ Use this to **focus on one test** while ignoring others during development.
 # To run test based on keyword- npx playwright test --project=chromium -g "title" --headed  
 # Use test.skip we can skip a test
 # use test.only to run the selected test only
+## UI mode- npx playwright test --ui

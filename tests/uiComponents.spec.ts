@@ -105,3 +105,152 @@ test('List and dropdowns', async({page})=>{
     }
 
 })
+
+
+test('Tooltips', async({page})=>{
+    await page.getByText('Modal & Overlays').click();
+    await page.getByText('Tooltip').click();
+
+    const tooltipCard = page.locator('nb-card', {hasText: 'Tooltip Placements'});
+    await tooltipCard.getByRole('button', {name: 'Top'}).hover();
+
+    const toollipMsg = await page.locator('nb-tooltip').textContent();
+
+    expect(toollipMsg).toEqual('This is a tooltip')
+
+})
+
+
+test('Dialog box', async({page})=>{
+    await page.getByText('Tables & Data').click();
+    await page.getByText('Smart Table').click();
+
+
+    page.on('dialog', dialog =>{
+        expect(dialog.message()).toEqual('Are you sure you want to delete?');
+        dialog.accept()
+    })
+    const trashIcon = page.locator('table').locator('tr', {hasText:'mdo@gmail.com'}).locator('.nb-trash');
+    await trashIcon.click();
+
+    await expect(page.locator('table tr').first()).not.toHaveText('mdo@gmail.com');
+});
+
+test('Web table', async({page})=>{
+
+    await page.getByText('Tables & Data').click();
+    await page.getByText('Smart Table').click();
+
+    // 1. get the row by any value in this row
+
+    const targetRow = page.getByRole('row').filter({hasText:'fat@yandex.ru'});
+
+    await targetRow.locator('.nb-edit').click();
+
+    await page.locator('input-editor').getByPlaceholder('Age').clear();
+
+    await page.locator('input-editor').getByPlaceholder('Age').fill('80');
+
+    await page.locator('.nb-checkmark').click();
+
+
+    // 2. get row by filteriing
+
+     await page.locator('.ng2-smart-pagination-nav').locator('li', {hasText: "2"}).click();
+
+     const targetRowId = page.getByRole('row').filter({hasText: '11'}).filter({has: page.locator('td').nth(1).getByText('11')});
+
+    await targetRowId.locator('.nb-edit').click();
+
+    await page.locator('input-editor').getByPlaceholder('E-mail').clear();
+
+    await page.locator('input-editor').getByPlaceholder('E-mail').fill('test@test.com');
+
+    await page.locator('.nb-checkmark').click();
+
+    expect(targetRowId).toContainText('test@test.com')
+
+    // 3. test filter of the table
+
+    const ageFilter = page.locator('input-filter').getByPlaceholder('Age');
+    await ageFilter.clear()
+    await ageFilter.fill('20');
+    await page.waitForTimeout(2000);
+    const allRows = page.locator('tbody tr');
+
+    for(const row of await allRows.all()){
+       const cellvalue = await row.locator('td').last().textContent();
+       expect(cellvalue).toEqual('20');
+    }
+});
+
+
+test('Datepicker', async({page})=>{
+
+    await page.getByText('Forms').click();
+    await page.getByText('Datepicker').click();
+    const datepicker = page.getByPlaceholder('Form Picker');
+    await datepicker.click();
+
+    let date = new Date();
+    date.setDate(date.getDate() + 200);
+    const expectedDate = date.getDate().toString();
+
+    const monthShort = date.toLocaleString('En-US', {month: 'short'});
+    const monthLong = date.toLocaleString('En-US', {month: 'long'});
+    const fullYear = date.getFullYear();
+
+    let calenderMonthAndYear: any = await page.locator('nb-calendar-view-mode').textContent();
+
+    const requiredMonthYear = ` ${monthLong} ${fullYear} `
+
+    while(!calenderMonthAndYear.includes(requiredMonthYear)){
+        await page.locator('[data-name = "chevron-right"]').click();
+        calenderMonthAndYear = await page.locator('nb-calendar-view-mode').textContent();
+    }
+
+    const dateValue = page.locator('[class="day-cell ng-star-inserted"]').getByText(expectedDate, {exact: true});
+
+    await dateValue.click();
+
+    await expect(datepicker).toHaveValue(`${monthShort} ${expectedDate}, ${fullYear}`);
+});
+
+
+test('Slider-using attribute', async({page})=>{
+    const tempDragger = page.locator('[tabtitle="Temperature"] ngx-temperature-dragger')
+    const tempCircle = tempDragger.locator('circle');
+
+    await tempCircle.evaluate( node => {
+        node.setAttribute('cx', '21.761');
+        node.setAttribute('cy', '83.6030');
+    })
+
+    await tempCircle.click();
+
+    expect(tempDragger).toContainText('17');
+
+});
+
+test('Slider- using mouse movement', async({page})=>{
+    const tempDragger = page.locator('[tabtitle="Temperature"] ngx-temperature-dragger');
+
+    await tempDragger.scrollIntoViewIfNeeded();
+
+    const box = await tempDragger.boundingBox();
+
+    const x = box!.x + box!.width / 2;
+    const y = box!.y + box!.height / 2; 
+
+    await page.mouse.move(x, y);
+
+    await page.mouse.down();
+
+    await page.mouse.move(x+100, y);
+
+    await page.mouse.move(x+100, y+100);
+    await page.mouse.up();
+
+    await expect(tempDragger).toContainText('30');
+
+});

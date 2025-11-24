@@ -3,11 +3,16 @@
   "version": "1.0.0",
   "description": "This automation project is based on the following course by **Artem Bondar**:",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "uiComponentTest-chrome": "npx playwright test uiComponents.spec.ts --project=chromium",
+    "uiComponentTest-ff": "npx playwright test uiComponents.spec.ts --project=firefox",
+    "uiComponentTest-all": "npm run uiComponentTest-chrome && npm run uiComponentTest-ff"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
     "@playwright/test": "^1.56.0",
     "@types/node": "^24.7.2"
   }

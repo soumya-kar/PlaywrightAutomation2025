@@ -14,7 +14,7 @@ export class FormLayoutPage extends HelperBase{
     async submitUsingGridForm(email: string, password: string, optionText: string){
         const usingTheGridForm = this.page.locator('nb-card').filter({hasText: 'Using the Grid'});
         await usingTheGridForm.getByRole('textbox', {name: 'email'}).fill(email);
-        await usingTheGridForm.getByRole('textbox', {name: 'email'}).fill(password);
+        await usingTheGridForm.getByRole('textbox', {name: 'password'}).fill(password);
         await usingTheGridForm.getByRole('radio', {name: optionText}).check({force: true});
         await usingTheGridForm.getByRole('button').click();
     }

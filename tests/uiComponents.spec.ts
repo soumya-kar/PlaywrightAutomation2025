@@ -2,7 +2,7 @@ import {expect, test} from '@playwright/test';
 
 
 test.beforeEach(async({page})=>{
-    await page.goto('http://localhost:4200')
+    await page.goto('/')
 });
 
 
@@ -212,6 +212,7 @@ test('Datepicker', async({page})=>{
     const dateValue = page.locator('[class="day-cell ng-star-inserted"]').getByText(expectedDate, {exact: true});
 
     await dateValue.click();
+    await page.screenshot({path: 'datepicker.png'});
 
     await expect(datepicker).toHaveValue(`${monthShort} ${expectedDate}, ${fullYear}`);
 });

@@ -2,7 +2,7 @@ import {test} from '@playwright/test';
 import { beforeEach } from 'node:test';
 
 test.beforeEach('Launch URL', async({page})=> {
-   await page.goto('http://localhost:4200/');
+   await page.goto('/');
    console.log('global before each')
 })
 
